@@ -1,91 +1,87 @@
 from asyncio.windows_events import NULL
 
-def checklen(cmd,type):
+def checklen(cmd,type,inslist):
     if(type=='A'):
         if(len(cmd)!=4):
-            print("Invalid length")
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid length")
             return False
         else:
             return True
     
     elif(type=='B' or type=='C' or type=='D'):
         if(len(cmd)!=3):
-            print("Invalid length")
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid length")
             return False
         else:
             return True
     
     elif(type=='E'):
         if(len(cmd)!=2):
-            print("Invalid length")
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid length")
             return False
         else:
             return True
     
     elif(type=='F'):
         if(len(cmd)!=1):
-            print("Invalid length")
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid length")
             return False
         else:
             return True
 
-def checking_typeA(cmd,dicisnt,dicreg,count):
+def checking_typeA(cmd,dicisnt,dicreg,inslist):
     if(cmd[1] not in dicreg.keys() or cmd[2] not in dicreg.keys() or cmd[3] not in dicreg.keys()):
-        print("Error in line :Invalid register")
+        print(f"Error At line {instDict[' '.join(cmd)]} : Invalid register")
         return False
     else:
         return True
 
-def checking_typeB(cmd,dicinst,dicreg,count):
+def checking_typeB(cmd,dicinst,dicreg,inlist):
     if(cmd[1] not in dicreg.keys()):
-        print("Invalid register")
+        print(f"Error At line {inslist[' '.join(cmd)]} : Invalid register")
         return False
     else:
         if(cmd[2][0]!='$'):
-            print("Invalid Immediate syntax")
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid Immediate syntax")
             return False
         else:
             if(0<=int(cmd[2][1:])<=255):
                 return True
             else:
-                print("Number out of range")
+                print(f"Error At line {inslist[' '.join(cmd)]} : Number out of range")
                 return False
 
 def checking_typeC(cmd,dicinst,dicreg,count):
     if(cmd[1] not in dicreg.keys() or cmd[2] not in dicreg.keys()):
-        print("Invalid register")
+        print(f"Error At line {inslist[' '.join(cmd)]} : Invalid register")
         return False
     else:
         return True
 
-def checking_typeD(cmd,dicinst,dicreg,dicvar,count):
+def checking_typeD(cmd,dicinst,dicreg,varDict,count):
     if(cmd[1] not in dicreg.keys()):
-        print("Invalid register")
+        print(f"Error At line {inslist[' '.join(cmd)]} : Invalid register")
         return False
     else:
-        if(cmd[2] not in dicvar.keys()):
-            print("Invalid variable")
+        if(cmd[2] not in varDict.keys()):
+            print(f"Error At line {inslist[' '.join(cmd)]} : Invalid variable")
             return False
         else:
             return True
 
 def checking_typeE(cmd,dicinst,dicreg,diclabel,count):
     if(cmd[1] not in diclabel.keys()):
-        print("Invalid memory address")
+        print(f"Error At line {inslist[' '.join(cmd)]} : Invalid label")
         return False
     else:
         return True
 
 def checking_typeF(cmd,dicinst,dicreg,diclabel,count):
-    # if(cmd[1] not in diclabel.keys()):
-    #     print("Invalid memory address")
-    #     return False
-    # else:
-        return NULL
+    return True
 
-def checking(cmd,dicinst,dicreg,dicvar,diclabel,count):
-    if(cmd[0] not in dicinst.keys()):
-        print("Invalid Instruction")
+def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist):
+    if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
+        print(f"Error At line {inslist[' '.join(cmd)]} : Invalid Instruction")
         return False
 
     else:
@@ -96,31 +92,34 @@ def checking(cmd,dicinst,dicreg,dicvar,diclabel,count):
                 typ = 'B'
                 
         else:
-            typ = dicinst[cmd[0]][1]
+            if(cmd[0]=='var'):
+                typ = 'X'
+            else:
+                typ = dicinst[cmd[0]][1]
 
-        if(checklen(cmd,typ)):
+        if(checklen(cmd,typ,inslist)):
             if(typ=='A'):
-                result = checking_typeA(cmd,dicinst,dicreg,count)
+                result = checking_typeA(cmd,dicinst,dicreg,inslist)
                 return result
 
             elif(typ=='B'):
-                result = checking_typeB(cmd,dicinst,dicreg,count)
+                result = checking_typeB(cmd,dicinst,dicreg,inslist)
                 return result
 
             elif(typ=='C'):
-                result = checking_typeC(cmd,dicinst,dicreg,count)
+                result = checking_typeC(cmd,dicinst,dicreg,inslist)
                 return result
             
             elif(typ=='D'):
-                result = checking_typeD(cmd,dicinst,dicreg,dicvar,count)
+                result = checking_typeD(cmd,dicinst,dicreg,varDict,inslist)
                 return result
 
             elif(typ=='E'):
-                result = checking_typeE(cmd,dicinst,dicreg,diclabel,count)
+                result = checking_typeE(cmd,dicinst,dicreg,diclabel,inslist)
                 return result
             
             elif(typ=='F'):
-                result = checking_typeF(cmd,dicinst,dicreg,count)
+                result = checking_typeF(cmd,dicinst,dicreg,inslist)
                 return result
         else:
             return False
@@ -133,16 +132,12 @@ dicinst = {"add":['10000','A'],"sub":['10001','B'],"mov":['10010','B'],"mov":['1
 "jlt":['01100','E'],"jgt":['01101','E'],"je":['01111','E'],"hlt":['01010']}
 
 dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110"}
-
-dicvar = {'X':'00000011'}
 diclabel = {}
-count = 0
-l = ["var X"," ","mov R2 r3","add R1 R2 R3"," ","st R3 X","mov R1 $100"]
-for i in l:
-    if(i==''):
-        count+=1
-        continue
-    else:
+
+inslist = {'var X':1, 'var y':2, 'var Z':3, 'var u':4, 'add R1 R2 R3':5, 'mov R1 $9':6, 'add: add R3 R4 R3':7}
+instDict = {'add R1 R2 R3': 0, 'mov R1 $9': 1, 'add: add R3 R4 R3': 2}
+varDict = {'X': 3, 'y': 4, 'Z': 5, 'u': 6}
+
+for i in instDict.keys():
         cmd = i.split()
-        print(checking(cmd,dicinst,dicreg,dicvar,diclabel,count))
-        count+=1
+        print(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist))
