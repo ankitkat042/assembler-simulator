@@ -3,76 +3,6 @@
 #         if()
 
 
-op   =   {"add" : "10000",
-          "sub" : "10001",
-          "mov" : "10010",
-          "ld"  :  "10100",
-          "st"  :  "10101",
-          "mul" : "10110",
-          "div" : "10111",
-          "rs"  :  "11000",
-          "ls"  :  "11001",
-          "xor" : "11010",
-          "or"  :  "11011",
-          "and" : "11100",
-          "not" : "11101",
-          "cmp" : "11110",
-          "jmp" : "11111",
-          "jlt" : "01100",
-          "jgt" : "01101",
-          "je"  :  "01111",
-          "hlt" : "01010"}
-
-
-reg = {"R0" : "000",
-       "R1" : "001",
-        "R2": "010",
-        "R3": "011",
-        "R4": "100",
-        "R5": "101",
-        "R6": "110",
-        "FLAGS": "111",}
-
-
-A = ["add","sub","mul","xor","or","and"]
-B = ["mov","rs","ls"]
-C = ["mov","div","not","cmp"]
-D = ["ld","st"]
-E = ["jmp","jlt","jgt","je"]
-F = ["hlt"]
-
-def unusedBits(n):
-    return "0"*n
-
-def binConvert (n):
-    return '{0:08b}'.format(n)
-
-def convertor(syntax, varDict, diclabel):
-    code = syntax[0]
-    if code in A:
-        return op[code] + unusedBits(2) + reg[syntax[1]] + reg[syntax[2]] + reg[syntax[3]]
-    
-    elif code in B and syntax[-1][0] == "$":
-        num=int(syntax[-1][1:])
-        return op[code] + reg[syntax[1]] + binConvert(num)
-
-    elif code in C:
-        s=op[code]
-        if code == "mov":
-            s="10011"
-        return s + unusedBits(5) + reg[syntax[1]] + reg[syntax[2]]
-    
-    elif code in D:
-        var=syntax[2]
-        return op[code] + reg[syntax[1]] + binConvert(varDict[var])
-    
-    elif code in E:
-        label=syntax[1]
-
-        return op[code] + unusedBits(3) + binConvert(diclabel[label])
-    
-    elif code in F:
-        return op[code] + unusedBits(11)
 
 from main2 import*
 
@@ -80,11 +10,11 @@ def checklen(cmd,type,inslist,q,s,count):
     if(type=='A'):
         if(len(cmd)!=4):
             if(q==1):
-                print(f"Error At line {count} : Invalid Instruction length in Label")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction length in Label")
                 q=0
                 return False
             else:    
-                print(f"Error At line {count} : Invalid length")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid length")
                 return False
         else:
             return True
@@ -92,11 +22,11 @@ def checklen(cmd,type,inslist,q,s,count):
     elif(type=='B' or type=='C' or type=='D'):
         if(len(cmd)!=3):
             if(q==1):
-                print(f"Error At line {count} : Invalid Instruction length in Label")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction length in Label")
                 q=0
                 return False
             else:    
-                print(f"Error At line {count} : Invalid length")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid length")
                 return False
         else:
             return True
@@ -104,11 +34,11 @@ def checklen(cmd,type,inslist,q,s,count):
     elif(type=='E'):
         if(len(cmd)!=2):
             if(q==1):
-                print(f"Error At line {count} : Invalid Instruction length in Label")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction length in Label")
                 q=0
                 return False
             else:    
-                print(f"Error At line {count} : Invalid length")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid length")
                 return False
         else:
             return True
@@ -116,11 +46,11 @@ def checklen(cmd,type,inslist,q,s,count):
     elif(type=='F'):
         if(len(cmd)!=1):
             if(q==1):
-                print(f"Error At line {count} : Invalid Instruction length in Label")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction length in Label")
                 q=0
                 return False
             else:    
-                print(f"Error At line {count} : Invalid length")
+                print(f"Error At line {list(inslist.keys())[count]} : Invalid length")
                 return False
         else:
             return True
@@ -128,11 +58,11 @@ def checklen(cmd,type,inslist,q,s,count):
 def checking_typeA(cmd,dicisnt,dicreg,inslist,q,s,count):
     if((cmd[1] not in dicreg.keys()or cmd[1]=="FLAGS") or (cmd[2] not in dicreg.keys() or cmd[2]=="FLAGS") or (cmd[3] not in dicreg.keys() or cmd[3]=="FLAGS")):
         if(q==1):
-            print(f"Error At line {count} : Invalid Register in Label")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
             return False
         else:
-            print(f"Error At line {count} : Invalid register")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid register")
             return False
     else:
         return True
@@ -140,31 +70,31 @@ def checking_typeA(cmd,dicisnt,dicreg,inslist,q,s,count):
 def checking_typeB(cmd,dicinst,dicreg,inlist,q,s,count):
     if(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
         if(q==1):
-            print(f"Error At line {count} : Invalid Register in Label")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
             return False
         else:
-            print(f"Error At line {count} : Invalid register")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid register")
             return False
     else:
         if(cmd[2][0]!='$'):
-            print(f"Error At line {count} : Invalid Immediate syntax")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Immediate syntax")
             return False
         else:
             if(0<=int(cmd[2][1:])<=255):
                 return True
             else:
-                print(f"Error At line {count} : Number out of range")
+                print(f"Error At line {list(inslist.keys())[count]} : Number out of range")
                 return False
 
 def checking_typeC(cmd,dicinst,dicreg,q,s,count):
     if((cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS") or cmd[2] not in dicreg.keys()):
         if(q==1):
-            print(f"Error At line {count} : Invalid Register in Label")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
             return False
         else:
-            print(f"Error At line {count} : Invalid register")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid register")
             return False
     else:
         return True
@@ -172,15 +102,15 @@ def checking_typeC(cmd,dicinst,dicreg,q,s,count):
 def checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count):
     if(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
         if(q==1):
-            print(f"Error At line {count} : Invalid Register in Label")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
             return False
         else:
-            print(f"Error At line {count} : Invalid register")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid register")
             return False
     else:
         if(cmd[2] not in varDict.values()):
-            print(f"Error At line {count} : Invalid variable")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid variable")
             return False
         else:
             return True
@@ -188,11 +118,11 @@ def checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count):
 def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
     if(cmd[1] not in diclabel.values()):
         if(q==1):
-            print(f"Error At line {count} : Invalid Label")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Label")
             q=0
             return False
         else:
-            print(f"Error At line {count} : Invalid Memory address")
+            print(f"Error At line {list(inslist.keys())[count]} : Invalid Memory address")
             return False
     else:
         return True
@@ -208,7 +138,7 @@ def check_space(i,inlist,count):
     if(len(i.split())-1==c):
         return True
     else:
-        print(f"Error At line {count} : Invalid spaces in instruction")
+        print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
         return False
 
 
@@ -219,12 +149,12 @@ def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
             if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
                 if(q==1):
                     print(s)
-                    print(f"Error At line {count} : Invalid Instruction in Label")
+                    print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction in Label")
                     q=0
                     return False
                 else:
                     print(cmd)
-                    print(f"Error At line {count} : Invalid Instruction")
+                    print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction")
                     return False
 
             else:
@@ -302,25 +232,24 @@ inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 
 instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
 varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
 diclabel= {18: 'add'}
-
+    
 # print(inslist.keys())
-count = len(varDict.keys())
-for i in instDict.keys():     
-    count+=1
-    if(':' in instDict[i]):
-        if(check_space(instDict[i],inslist,count)):
-            if(checking_label(instDict[i],diclabel,inslist,q,count)==False):
+count = len(varDict.values())
+for i in instDict.values():
+   
+    if(':' in i):
+        if(check_space(i,inslist,count)):
+            if(checking_label(i,diclabel,inslist,q,count)==False):
                 break
             else:
-                print(instDict[i])
-                print(convertor(instDict[i].split()[1:], varDict, diclabel))
-            
+                print(i)
+                print(convertor(i.split()[1:], varDict, diclabel))
     else:
-        cmd = instDict[i].split()
-        if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,instDict[i],count)==False):
+        cmd = i.split()
+        if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
             break
+        
         else:
-            print(instDict[i])
-            print(convertor(instDict[i].split(), varDict, diclabel))
-    
-
+            print(i)
+            print(convertor(i.split(), varDict, diclabel))
+    count+=1
