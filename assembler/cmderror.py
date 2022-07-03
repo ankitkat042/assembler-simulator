@@ -209,7 +209,7 @@ def checking_label(s,diclabel,inslist,q,count):
     x = idx+2
     y = idx-1
     if(idx==0 or idx==len(s)-1 or s[x]==' ' or s[y]==' '):
-        print(f"Error At line {count} : Invalid label syntax")
+        print(f"Error At line {list(inslist.keys())[count]} : Invalid label syntax")
         return False
     else:
         q=1
@@ -232,26 +232,29 @@ dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110","FL
 # instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
 # varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
 # diclabel= {18: 'add'}
+
+
+
 input_file = open("1112.txt","r")
 a = input_file.read().split("\n")
-inslist = {}
+instDict = {}
 for i in range(1,len(a)+1):
     if a[i-1] == '':
         pass
     else:
-        inslist[i] = a[i-1]  
+        instDict[i] = a[i-1]  
 purified = []
-for line in inslist.values():
+for line in instDict.values():
     if line.split()[0] == "var":
         pass
     else:
         purified.append(line)
-instDict = {}
+inslist = {}
 for i in range(1,len(purified)+1):
-    instDict[i]= purified[i-1]
-x = len(instDict)
+    inslist[i]= purified[i-1]
+x = len(inslist)
 varDict = {}
-f = list(inslist.values())
+f = list(instDict.values())
 for i in range(1,len(f)+1):
     if f[i-1].split()[0] == 'var' and len(f[i].split()) == 2:
         varDict[i+x] = f[i-1].split()[1]
@@ -259,10 +262,19 @@ for i in range(1,len(f)+1):
         break
 diclabel = {}
 iterator = 0
-for i in inslist.values():
+for i in instDict.values():
     if ":" in i and (i[0] !=":" or i[-1] != ":"):
-        diclabel[list(inslist.keys())[iterator]] = i[0:i.index(":")]
+        diclabel[list(instDict.keys())[iterator]] = i[0:i.index(":")]
     iterator+=1
+
+print(instDict)
+print(varDict)
+print(inslist)
+
+
+
+final=[]
+
 # print(inslist.keys())
 count = len(varDict.values())
 for i in instDict.values():
@@ -272,14 +284,20 @@ for i in instDict.values():
             if(checking_label(i,diclabel,inslist,q,count)==False):
                 break
             else:
-                print(i)
-                print(convertor(i.split()[1:], varDict, diclabel))
+                
+                final.append(convertor(i.split()[1:], varDict, diclabel))
     else:
         cmd = i.split()
         if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
             break
         
         else:
-            print(i)
-            print(convertor(i.split(), varDict, diclabel))
+            
+            final.append(convertor(i.split(), varDict, diclabel))
     count+=1
+
+
+with open("hehe.txt", 'w') as g:
+    for i in range(len(final)):
+        s=final[i]+'\n'
+        g.write(s)
