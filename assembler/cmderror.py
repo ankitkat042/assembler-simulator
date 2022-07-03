@@ -122,63 +122,74 @@ def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s):
 def checking_typeF(cmd,dicinst,dicreg,diclabel,q,s):
     return True
 
-
-
+def check_space(i,inlist):
+    c = 0
+    for j in i:
+        if(j==' '):
+            c+=1
+    if(len(i.split())-1==c):
+        return True
+    else:
+        print(f"Error At line {inlist[i]} : Invalid spaces in instruction")
+        return False
 
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s):
     if(list(inslist.keys())[-1]=='hlt'):
-
-        if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
-            if(q==1):
-                print(s)
-                print(f"Error At line {inslist[s]} : Invalid Instruction in Label")
-                q=0
-                return False
-            else:
-                print(cmd)
-                print(f"Error At line {inslist[' '.join(cmd)]} : Invalid Instruction")
-                return False
-
-        else:
-            if(cmd[0]=='mov'):
-                if(cmd[2][0].isalpha()):
-                        typ = 'C'
+        if(check_space(s,inslist)):
+            if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
+                if(q==1):
+                    print(s)
+                    print(f"Error At line {inslist[s]} : Invalid Instruction in Label")
+                    q=0
+                    return False
                 else:
-                    typ = 'B'
+                    print(cmd)
+                    print(f"Error At line {inslist[' '.join(cmd)]} : Invalid Instruction")
+                    return False
+
+            else:
+                if(cmd[0]=='mov'):
+                    if(cmd[2][0].isalpha()):
+                            typ = 'C'
+                    else:
+                        typ = 'B'
+                        
+                else:
+                    if(cmd[0]=='var'):
+                        typ = 'X'
+                    else:
+                        typ = dicinst[cmd[0]][1]
+
+                if(checklen(cmd,typ,inslist,q,s)):
+                    if(typ=='A'):
+                        result = checking_typeA(cmd,dicinst,dicreg,inslist,q,s)
+                        return result
+
+                    elif(typ=='B'):
+                        result = checking_typeB(cmd,dicinst,dicreg,inslist,q,s)
+                        return result
+
+                    elif(typ=='C'):
+                        result = checking_typeC(cmd,dicinst,dicreg,inslist,q,s)
+                        return result
                     
-            else:
-                if(cmd[0]=='var'):
-                    typ = 'X'
+                    elif(typ=='D'):
+                        result = checking_typeD(cmd,dicinst,dicreg,varDict,inslist,q)
+                        return result
+
+                    elif(typ=='E'):
+                        result = checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s)
+                        return result
+                    
+                    elif(typ=='F'):
+                        result = checking_typeF(cmd,dicinst,dicreg,inslist,q,s)
+                        return result
                 else:
-                    typ = dicinst[cmd[0]][1]
-
-            if(checklen(cmd,typ,inslist,q,s)):
-                if(typ=='A'):
-                    result = checking_typeA(cmd,dicinst,dicreg,inslist,q,s)
-                    return result
-
-                elif(typ=='B'):
-                    result = checking_typeB(cmd,dicinst,dicreg,inslist,q,s)
-                    return result
-
-                elif(typ=='C'):
-                    result = checking_typeC(cmd,dicinst,dicreg,inslist,q,s)
-                    return result
-                
-                elif(typ=='D'):
-                    result = checking_typeD(cmd,dicinst,dicreg,varDict,inslist,q)
-                    return result
-
-                elif(typ=='E'):
-                    result = checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s)
-                    return result
-                
-                elif(typ=='F'):
-                    result = checking_typeF(cmd,dicinst,dicreg,inslist,q,s)
-                    return result
-            else:
-                return False
+                    return False
+        else:
+            # print(f"Error At line {inslist[s]} : Invalid spaces in Instruction")
+            return False
     else:
         print("Error At End: No hlt statement at end")
         return False
@@ -216,8 +227,9 @@ varDict = {'X': 6, 'y': 7, 'Z': 8, 'u': 9}
 
 for i in instDict.keys():
     if(':' in i):
-        if(checking_label(i,diclabel,inslist,q)==False):
-            break
+        if(check_space(i,inslist)):
+            if(checking_label(i,diclabel,inslist,q)==False):
+                break
     else:
         cmd = i.split()
         if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i)==False):
