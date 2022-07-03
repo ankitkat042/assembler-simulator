@@ -140,7 +140,7 @@ def check_space(i,inlist,count):
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
     l = list(inslist.values())
-    if(list(inslist.values())[-1]=='hlt' and l.index('hlt')==-1):
+    if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1):
         if(check_space(s,inslist,count)):
             if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
                 if(q==1):
@@ -224,10 +224,10 @@ dicinst = {"add":['10000','A'],"sub":['10001','B'],"mov":['10010','B'],"mov":['1
 dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110","FLAGS":"111"}
 # diclabel = {'label1':3}
 
-inslist = {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'hlt', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
-instDict = {0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'hlt', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
-varDict = {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
-diclabel = {18: 'add'}
+inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+diclabel= {18: 'add'}
 
 # print(inslist.keys())
 count = len(varDict.values())
