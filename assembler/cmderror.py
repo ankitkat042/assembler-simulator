@@ -1,6 +1,79 @@
 # def getline_no(inslist,s):
 #     for i in inslist.values():
 #         if()
+
+
+op   =   {"add" : "10000",
+          "sub" : "10001",
+          "mov" : "10010",
+          "ld"  :  "10100",
+          "st"  :  "10101",
+          "mul" : "10110",
+          "div" : "10111",
+          "rs"  :  "11000",
+          "ls"  :  "11001",
+          "xor" : "11010",
+          "or"  :  "11011",
+          "and" : "11100",
+          "not" : "11101",
+          "cmp" : "11110",
+          "jmp" : "11111",
+          "jlt" : "01100",
+          "jgt" : "01101",
+          "je"  :  "01111",
+          "hlt" : "01010"}
+
+
+reg = {"R0" : "000",
+       "R1" : "001",
+        "R2": "010",
+        "R3": "011",
+        "R4": "100",
+        "R5": "101",
+        "R6": "110",
+        "FLAGS": "111",}
+
+
+A = ["add","sub","mul","xor","or","and"]
+B = ["mov","rs","ls"]
+C = ["mov","div","not","cmp"]
+D = ["ld","st"]
+E = ["jmp","jlt","jgt","je"]
+F = ["hlt"]
+
+def unusedBits(n):
+    return "0"*n
+
+def binConvert (n):
+    return '{0:08b}'.format(n)
+
+def convertor(syntax, varDict, diclabel):
+    code = syntax[0]
+    if code in A:
+        return op[code] + unusedBits(2) + reg[syntax[1]] + reg[syntax[2]] + reg[syntax[3]]
+    
+    elif code in B and syntax[-1][0] == "$":
+        num=int(syntax[-1][1:])
+        return op[code] + reg[syntax[1]] + binConvert(num)
+
+    elif code in C:
+        s=op[code]
+        if code == "mov":
+            s="10011"
+        return s + unusedBits(5) + reg[syntax[1]] + reg[syntax[2]]
+    
+    elif code in D:
+        var=syntax[2]
+        return op[code] + reg[syntax[1]] + binConvert(varDict[var])
+    
+    elif code in E:
+        label=syntax[1]
+
+        return op[code] + unusedBits(3) + binConvert(diclabel[label])
+    
+    elif code in F:
+        return op[code] + unusedBits(11)
+
 from main2 import*
 
 def checklen(cmd,type,inslist,q,s,count):
