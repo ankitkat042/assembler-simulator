@@ -105,14 +105,14 @@ def checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count):
             print(f"Error At line {count} : Invalid register")
             return False
     else:
-        if(cmd[2] not in varDict.keys()):
+        if(cmd[2] not in varDict.values()):
             print(f"Error At line {count} : Invalid variable")
             return False
         else:
             return True
 
 def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
-    if(cmd[1] not in diclabel.keys()):
+    if(cmd[1] not in diclabel.values()):
         if(q==1):
             print(f"Error At line {count} : Invalid Label")
             q=0
@@ -139,7 +139,8 @@ def check_space(i,inlist,count):
 
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
-    if(list(inslist.keys())[-1]=='hlt' and inslist['hlt']!=-1):
+    l = list(inslist.values())
+    if(list(inslist.values())[-1]=='hlt' and l.index('hlt')==-1):
         if(check_space(s,inslist,count)):
             if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
                 if(q==1):
@@ -221,15 +222,16 @@ dicinst = {"add":['10000','A'],"sub":['10001','B'],"mov":['10010','B'],"mov":['1
 "jlt":['01100','E'],"jgt":['01101','E'],"je":['01111','E'],"hlt":['01010','F']}
 
 dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110","FLAGS":"111"}
-diclabel = {'label1':3}
+# diclabel = {'label1':3}
 
-inslist = {'var X':1, 'var y':2, 'var Z':3, 'var u':4, 'add R1 R2 R3':5, 'add R1 R2 R3':6,'label1: add R1 R2 R3':7,'jlt label1': 8,'hlt':9,'ld R1 X':10,'hlt':11}
-instDict = {'add R1 R2 R3': 1,'add R1 R2 R3':2,'label1: add R1 R2 R3':3,'jlt label1':4,'hlt':5,'ld R1 X':6,'hlt':7}
-varDict = {'X': 6, 'y': 7, 'Z': 8, 'u': 9}
+inslist = {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'hlt', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+instDict = {0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'hlt', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+varDict = {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+diclabel = {18: 'add'}
 
 # print(inslist.keys())
-count = len(varDict.keys())
-for i in instDict.keys():
+count = len(varDict.values())
+for i in instDict.values():
     count+=1
     if(':' in i):
         if(check_space(i,inslist,count)):
