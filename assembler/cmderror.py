@@ -228,11 +228,41 @@ dicinst = {"add":['10000','A'],"sub":['10001','B'],"mov":['10010','B'],"mov":['1
 dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110","FLAGS":"111"}
 # diclabel = {'label1':3}
 
-inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
-instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
-varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
-diclabel= {18: 'add'}
-    
+# inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+# instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+# varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+# diclabel= {18: 'add'}
+input_file = open("1112.txt","r")
+a = input_file.read().split("\n")
+inslist = {}
+for i in range(1,len(a)+1):
+    if a[i-1] == '':
+        pass
+    else:
+        inslist[i] = a[i-1]  
+purified = []
+for line in inslist.values():
+    if line.split()[0] == "var":
+        pass
+    else:
+        purified.append(line)
+instDict = {}
+for i in range(1,len(purified)+1):
+    instDict[i]= purified[i-1]
+x = len(instDict)
+varDict = {}
+f = list(inslist.values())
+for i in range(1,len(f)+1):
+    if f[i-1].split()[0] == 'var' and len(f[i].split()) == 2:
+        varDict[i+x] = f[i-1].split()[1]
+    else:
+        break
+diclabel = {}
+iterator = 0
+for i in inslist.values():
+    if ":" in i and (i[0] !=":" or i[-1] != ":"):
+        diclabel[list(inslist.keys())[iterator]] = i[0:i.index(":")]
+    iterator+=1
 # print(inslist.keys())
 count = len(varDict.values())
 for i in instDict.values():
