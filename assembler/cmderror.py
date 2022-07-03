@@ -1,10 +1,7 @@
 # def getline_no(inslist,s):
 #     for i in inslist.values():
-#         if()
-
-
-
-from main2 import*
+#         if(i==s):
+#             return inslist[]
 
 def checklen(cmd,type,inslist,q,s,count):
     if(type=='A'):
@@ -209,7 +206,7 @@ def checking_label(s,diclabel,inslist,q,count):
     x = idx+2
     y = idx-1
     if(idx==0 or idx==len(s)-1 or s[x]==' ' or s[y]==' '):
-        print(f"Error At line {count} : Invalid label syntax")
+        print(f"Error At line {list(inslist.keys())[count]} : Invalid label syntax")
         return False
     else:
         q=1
@@ -228,28 +225,22 @@ dicinst = {"add":['10000','A'],"sub":['10001','B'],"mov":['10010','B'],"mov":['1
 dicreg = {'R1': "000",'R2':"001",'R3':"010","R4":"100","R5":"101","R6":"110","FLAGS":"111"}
 # diclabel = {'label1':3}
 
-inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
-instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
-varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
-diclabel= {18: 'add'}
-    
-# print(inslist.keys())
-count = len(varDict.values())
+# inslist = {'var X':1, 'var y':2, 'var Z':3, 'var u':4, 'add R1 R2 R3':5, 'add R1 R2 R3':6,'label1: add R1 R2 R3':7,'jlt label1': 8,'hlt':9,'ld R1 X':10,'hlt':11}
+# instDict = {'add R1 R2 R3': 1,'add R1 R2 R3':2,'label1: add R1 R2 R3':3,'jlt label1':4,'hlt':5,'ld R1 X':6,'hlt':7}
+# varDict = {'X': 6, 'y': 7, 'Z': 8, 'u': 9}
+inslist = {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R4', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+instDict = {0: 'add R1 R2 R3', 1: 'add R1 R2 R4', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+varDict = {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+diclabel = {18: 'add'}
+
+count = len(varDict.values())-1
 for i in instDict.values():
-   
+    count+=1
     if(':' in i):
         if(check_space(i,inslist,count)):
             if(checking_label(i,diclabel,inslist,q,count)==False):
                 break
-            else:
-                print(i)
-                print(convertor(i.split()[1:], varDict, diclabel))
     else:
         cmd = i.split()
         if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
             break
-        
-        else:
-            print(i)
-            print(convertor(i.split(), varDict, diclabel))
-    count+=1
