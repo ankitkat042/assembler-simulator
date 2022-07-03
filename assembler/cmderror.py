@@ -1,6 +1,7 @@
 # def getline_no(inslist,s):
 #     for i in inslist.values():
 #         if()
+from main2 import*
 
 def checklen(cmd,type,inslist,q,s,count):
     if(type=='A'):
@@ -230,14 +231,23 @@ varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
 diclabel= {18: 'add'}
 
 # print(inslist.keys())
-count = len(varDict.values())
-for i in instDict.values():
+count = len(varDict.keys())
+for i in instDict.keys():     
     count+=1
-    if(':' in i):
-        if(check_space(i,inslist,count)):
-            if(checking_label(i,diclabel,inslist,q,count)==False):
+    if(':' in instDict[i]):
+        if(check_space(instDict[i],inslist,count)):
+            if(checking_label(instDict[i],diclabel,inslist,q,count)==False):
                 break
+            else:
+                print(instDict[i])
+                print(convertor(instDict[i].split()[1:], varDict, diclabel))
+            
     else:
-        cmd = i.split()
-        if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
+        cmd = instDict[i].split()
+        if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,instDict[i],count)==False):
             break
+        else:
+            print(instDict[i])
+            print(convertor(instDict[i].split(), varDict, diclabel))
+    
+
