@@ -1,4 +1,4 @@
-
+from sys import stdin
 op   =   {"add" : "10000",
           "sub" : "10001",
           "mov" : "10010",
@@ -116,7 +116,9 @@ dicreg = {"R0" : "000",
 
 
 
-input_file = open("1112.txt","r")
+#input_file = open("1112.txt","r")
+input_file=stdin
+#print(input_file)
 a = input_file.read().split("\n")
 inslist = {}
 for i in range(1,len(a)+1):
@@ -221,7 +223,15 @@ def checklen(cmd,type,inslist,q,s,count):
             return True
 
 def checking_typeA(cmd,dicisnt,dicreg,inslist,q,s,count):
-    if((cmd[1] not in dicreg.keys()or cmd[1]=="FLAGS") or (cmd[2] not in dicreg.keys() or cmd[2]=="FLAGS") or (cmd[3] not in dicreg.keys() or cmd[3]=="FLAGS")):
+    if(cmd[1] in dicinst.keys() or cmd[2] in dicinst.keys() or cmd[3] in dicinst.keys()):
+        if(q==1):
+            print(f"Error At line {list(inslist.keys())[count]} : Register cannot be a keyword in Label")
+            q=0
+            return False
+        else:
+            print(f"Error At line {list(inslist.keys())[count]} : Register cannot be a Keyword")
+            return False
+    elif((cmd[1] not in dicreg.keys()or cmd[1]=="FLAGS") or (cmd[2] not in dicreg.keys() or cmd[2]=="FLAGS") or (cmd[3] not in dicreg.keys() or cmd[3]=="FLAGS")):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
@@ -233,7 +243,15 @@ def checking_typeA(cmd,dicisnt,dicreg,inslist,q,s,count):
         return True
 
 def checking_typeB(cmd,dicinst,dicreg,inlist,q,s,count):
-    if(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
+    if(cmd[1] in dicinst.keys()):
+        if(q==1):
+            print(f"Error At line {list(inslist.keys())[count]} : Register cannot be a keyword in Label")
+            q=0
+            return False
+        else:
+            print(f"Error at line {list(inslist.keys())[count]} : Register cannot be a Keyword")
+            return False
+    elif(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
@@ -246,14 +264,25 @@ def checking_typeB(cmd,dicinst,dicreg,inlist,q,s,count):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Immediate syntax")
             return False
         else:
-            if(0<=int(cmd[2][1:])<=255):
+            if(cmd[2][1:] in dicinst.keys()):
+                print(f"Error at line {list(inslist.keys())[count]} : Immediate value cannot a keyword")
+                return False
+            elif(0<=int(cmd[2][1:])<=255):
                 return True
             else:
                 print(f"Error At line {list(inslist.keys())[count]} : Number out of range")
                 return False
 
 def checking_typeC(cmd,dicinst,dicreg,inslist,q,s,count):
-    if((cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS") or cmd[2] not in dicreg.keys()):
+    if(cmd[1] in dicinst.keys() or cmd[2] in dicinst.keys()):
+        if(q==1):
+            print(f"Error At line {list(inslist.keys())[count]} : Register cannot be a Keyword in label")
+            q=0
+            return False
+        else:
+            print(f"Error at line {list(inslist.keys())[count]} : Register cannot be a Keyword")
+            return False
+    elif((cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS") or cmd[2] not in dicreg.keys()):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
@@ -265,7 +294,15 @@ def checking_typeC(cmd,dicinst,dicreg,inslist,q,s,count):
         return True
 
 def checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count):
-    if(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
+    if(cmd[1] in dicinst.keys()):
+        if(q==1):
+            print(f"Error At line {list(inslist.keys())[count]} : Register cannot be a Keyword in Label")
+            q=0
+            return False
+        else:
+            print(f"Error at line {list(inslist.keys())[count]} : Register cannot be a Keyword")
+            return False
+    elif(cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS"):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
@@ -281,7 +318,15 @@ def checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count):
             return True
 
 def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
-    if(cmd[1] not in diclabel.values()):
+    if(cmd[1] in dicinst.keys()):
+        if(q==1):
+            print(f"Error At line {list(inslist.keys())[count]} : Memory address cannot be a Keyword in Label")
+            q=0
+            return False
+        else:
+            print(f"Error at line {list(inslist.keys())[count]} : Memory address cannot be a Keyword")
+            return False
+    elif(cmd[1] not in diclabel.values()):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Label")
             q=0
@@ -295,93 +340,78 @@ def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
 def checking_typeF(cmd,dicinst,dicreg,diclabel,q,s,count):
     return True
 
-
+# def check_space(i,inlist,count):
+#     c = 0
+#     for j in i:
+#         if(j==' '):
+#             c+=1
+#     if(len(i.split())-1==c):
+#         return True
+#     else:
+#         print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
+#         return False
 
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
     l = list(inslist.values())
-    if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1):   
-        if(check_space(s,inslist,count)):
-                if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
-                    if(q==1):
-                        print(s)
-                        print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction in Label")
-                        q=0
-                        return False
-                    else:
-                        print(cmd)
-                        print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction")
-                        return False
-                # elif(cmd[0] not in dicreg.keys() and cmd[0] == "var" ):
-                #     if len(cmd) == 2:
-                #         return True
-                #     else:
-                #         print(f"Error At line {list(inslist.keys())[count]} : Invalid Variable Declaration")
-                #         return False
-
+    if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1):
+        # if(check_space(s,inslist,count)):
+            if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
+                if(q==1):
+                    print(s)
+                    print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction in Label")
+                    q=0
+                    return False
                 else:
-                    if(cmd[0]=='mov'):
-                        if(cmd[2][0].isalpha()):
-                                typ = 'C'
-                        else:
-                            typ = 'B'
-                            
+                    print(cmd)
+                    print(f"Error At line {list(inslist.keys())[count]} : Invalid Instruction")
+                    return False
+
+            else:
+                if(cmd[0]=='mov'):
+                    if(cmd[2][0].isalpha()):
+                            typ = 'C'
                     else:
-                        if(cmd[0]=='var'):
-                            typ = 'X'
-                        else:
-                            typ = dicinst[cmd[0]][1]
-
-                    if(checklen(cmd,typ,inslist,q,s,count)):
-                        if(typ=='A'):
-                            result = checking_typeA(cmd,dicinst,dicreg,inslist,q,s,count)
-                            return result
-
-                        elif(typ=='B'):
-                            result = checking_typeB(cmd,dicinst,dicreg,inslist,q,s,count)
-                            return result
-
-                        elif(typ=='C'):
-                            result = checking_typeC(cmd,dicinst,dicreg,inslist,q,s,count)
-                            return result
+                        typ = 'B'
                         
-                        elif(typ=='D'):
-                            result = checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count)
-                            return result
-
-                        elif(typ=='E'):
-                            result = checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count)
-                            return result
-                        
-                        elif(typ=='F'):
-                            result = checking_typeF(cmd,dicinst,dicreg,inslist,q,s,count)
-                            return result
+                else:
+                    if(cmd[0]=='var'):
+                        typ = 'X'
                     else:
-                        return False
-        else:
-            #print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in Instruction")
-            return False
+                        typ = dicinst[cmd[0]][1]
+
+                if(checklen(cmd,typ,inslist,q,s,count)):
+                    if(typ=='A'):
+                        result = checking_typeA(cmd,dicinst,dicreg,inslist,q,s,count)
+                        return result
+
+                    elif(typ=='B'):
+                        result = checking_typeB(cmd,dicinst,dicreg,inslist,q,s,count)
+                        return result
+
+                    elif(typ=='C'):
+                        result = checking_typeC(cmd,dicinst,dicreg,inslist,q,s,count)
+                        return result
+                    
+                    elif(typ=='D'):
+                        result = checking_typeD(cmd,dicinst,dicreg,varDict,q,s,count)
+                        return result
+
+                    elif(typ=='E'):
+                        result = checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count)
+                        return result
+                    
+                    elif(typ=='F'):
+                        result = checking_typeF(cmd,dicinst,dicreg,inslist,q,s,count)
+                        return result
+                else:
+                    return False
+        # else:
+        #     # print(f"Error At line {inslist[s]} : Invalid spaces in Instruction")
+        #     return False
     else:
         print("Error At End: No hlt statement at end or hlt statement in between the code")
         return False
-# def check_var(s,instDict,insList,count):
-#     varInst = {}
-#     if s in instDict.values():
-#         return True 
-#     for i in insList.values():
-#         if i not in instDict.values():
-#             varInst[count] = i
-#     print(varInst)
-#     if varInst == {}:
-#         return True 
-
-#     if s in varInst.values():
-#         if (len(i.split()) == 2) and i.split()[0] == "var" :
-#             return True
-#         else:
-#             print(f"Invalid Instruction: Bad Variable at line {count}")
-#             return False
-
 
 
 def checking_label(s,diclabel,inslist,q,count):
@@ -397,7 +427,6 @@ def checking_label(s,diclabel,inslist,q,count):
         o = list(s.split())[1:]
         k = checking(o,dicinst,dicreg,varDict,diclabel,inslist,q,s,count)
         return k
-
 
 count = 0
 if(varCheck):
@@ -418,10 +447,14 @@ if(varCheck):
                 
                 final.append(convertor(i.split(), varDicta, diclabela))
         count+=1
-with open("hehe.txt", 'w') as g:
-    for i in range(len(final)):
-        if(i == len(final)-1):
-            s=final[i]
-        else:
-            s=final[i]+'\n'
-        g.write(s)
+# print(final)
+
+#with open("hehe.txt", 'w') as g:
+ #   for i in range(len(final)):
+  #      if(i == len(final)-1):
+   #         s=final[i]
+    #    else:
+     #       s=final[i]+'\n'
+      #  g.write(s)
+for i in final:
+    print(i)
