@@ -1,4 +1,6 @@
 from sys import stdin
+from collections import Counter
+
 op   =   {"add" : "10000",
           "sub" : "10001",
           "mov" : "10010",
@@ -114,12 +116,15 @@ dicreg = {"R0" : "000",
 # varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
 # diclabel= {18: 'add'}
 
-
+#############################      FILE INPUT    ###########################
 
 #input_file = open("1112.txt","r")
 input_file=stdin
 #print(input_file)
 a = input_file.read().split("\n")
+
+############################################################################
+
 inslist = {}
 for i in range(1,len(a)+1):
     if a[i-1] == '' or '\t' in a[i-1] :
@@ -139,6 +144,26 @@ x = len(instDict)
 varDict = {}
 f = list(inslist.values())
 
+# -----------------------error type: varibale in between-----------------------
+inn=-1
+statevar=True
+
+
+
+for i in range(len(a)):
+    
+    if a[i][0:3]=="var":
+        inn=i
+    elif a[i]=='':
+        pass
+    elif statevar==True:
+        inx=i
+        statevar=False
+
+if inn>inx:
+    print(f"Error in std-input at line {inn+1}: Varible declared after instruction")
+    exit()
+# ----------------------------------------------------------------------------
 varCheck = True
 varhelp = 0
 for i in range(1,len(f)+1):
@@ -169,10 +194,58 @@ for i in inslist.values():
 varDicta = {value:key for key, value in varDict.items()}
 diclabela = {value:key for key, value in diclabel.items()}
 
-final=[]
+# ----------------------------------error type: var name == label name   ----------------------------------
+varkeys=list(varDicta.keys())
+labelkeys=list(diclabela.keys())
+for i in range(len(varkeys)):
+    for j in range(len(labelkeys)):
+        if varkeys[i]==labelkeys[j]:
+            print(f"Error at line {diclabela[labelkeys[j]]}: label name cannot be same as variable name")
+            exit()
+# ------------------------------------------------------------------------------------------------------------
+
+
+
+
+# -----------------------error type: same name variable-----------------------
+cn = Counter(varDict.values())
+cna=sorted(k for k,v in varDict.items() if cn[v] == 1)
+
+if len(cna)!=len(varDict):
+    z=-1
+    cul=sorted(k for k,v in varDict.items() if cn[v] != 1)
+    keyy=varDict[cul[-1]]
+ 
+    culpritvar=f"var {keyy}"
+
+    for i in range(len(a)):
+        if a[i]==culpritvar:
+            z=i+1
+    print(f"General Syntax Error at line {z} : Two or more different variables have same names ")
+    exit()
+# -----------------------------------error type: same name label----------------------
+
+
+cnlabel = Counter(diclabel.values())
+cnalabel=sorted(k for k,v in diclabel.items() if cnlabel[v] == 1)
+if len(cnalabel)!=len(diclabel):
+    z=-1
+    cul=sorted(k for k,v in diclabel.items() if cnlabel[v] != 1)
+    
+    keyy=diclabel[cul[-1]]
+    
+    z=diclabela[keyy]
+    
+    print(f"General Syntax Error {z}: Two or more different labels have same names ")
+    exit()
 
 # print(inslist.keys())
+
+
+
+
 # count = len(varDict.values())
+final=[]
 def checklen(cmd,type,inslist,q,s,count):
     if(type=='A'):
         if(len(cmd)!=4):
@@ -416,10 +489,12 @@ def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
 
 def checking_label(s,diclabel,inslist,q,count):
     idx = s.index(':')
-    x = idx+2
     y = idx-1
-    if(idx==0 or idx==len(s)-1 or s[x]==' ' or s[y]==' '):
+    if(idx==0 or idx==len(s)-1 or s[y]==' '):
         print(f"Error At line {list(inslist.keys())[count]} : Invalid label syntax")
+        return False
+    elif(s[:idx] in dicinst.keys()):
+        print(f"Error at line {list(inslist.keys())[count]} : label name cannot be a Keyword")
         return False
     else:
         q=1
@@ -428,15 +503,14 @@ def checking_label(s,diclabel,inslist,q,count):
         k = checking(o,dicinst,dicreg,varDict,diclabel,inslist,q,s,count)
         return k
 
-count = 0
+count = len(varDict.keys())
 if(varCheck):
     for i in instDict.values():
         if(':' in i):
-            if(check_space(i,inslist,count)):
+            # if(check_space(i,inslist,count)):
                 if(checking_label(i,diclabel,inslist,q,count)==False):
                     break
                 else:
-                    
                     final.append(convertor(i.split()[1:], varDicta, diclabela))
         else:
             cmd = i.split()
