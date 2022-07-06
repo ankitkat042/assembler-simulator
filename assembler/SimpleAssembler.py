@@ -1,8 +1,178 @@
-# def getline_no(inslist,s):
-#     for i in inslist.values():
-#         if(i==s):
-#             return inslist[]
+from sys import stdin
+op   =   {"add" : "10000",
+          "sub" : "10001",
+          "mov" : "10010",
+          "ld"  :  "10100",
+          "st"  :  "10101",
+          "mul" : "10110",
+          "div" : "10111",
+          "rs"  :  "11000",
+          "ls"  :  "11001",
+          "xor" : "11010",
+          "or"  :  "11011",
+          "and" : "11100",
+          "not" : "11101",
+          "cmp" : "11110",
+          "jmp" : "11111",
+          "jlt" : "01100",
+          "jgt" : "01101",
+          "je"  :  "01111",
+          "hlt" : "01010"}
 
+
+reg = {"R0" : "000",
+       "R1" : "001",
+        "R2": "010",
+        "R3": "011",
+        "R4": "100",
+        "R5": "101",
+        "R6": "110",
+        "FLAGS": "111",}
+
+
+A = ["add","sub","mul","xor","or","and"]
+B = ["mov","rs","ls"]
+C = ["mov","div","not","cmp"]
+D = ["ld","st"]
+E = ["jmp","jlt","jgt","je"]
+F = ["hlt"]
+
+def unusedBits(n):
+    return "0"*n
+
+def binConvert (n):
+    return '{0:08b}'.format(n)
+
+def convertor(syntax, varDict, diclabel):
+    code = syntax[0]
+    if code in A:
+        return op[code] + unusedBits(2) + reg[syntax[1]] + reg[syntax[2]] + reg[syntax[3]]
+    
+    elif code in B and syntax[-1][0] == "$":
+        num=int(syntax[-1][1:])
+        return op[code] + reg[syntax[1]] + binConvert(num)
+
+    elif code in C:
+        s=op[code]
+        if code == "mov":
+            s="10011"
+        return s + unusedBits(5) + reg[syntax[1]] + reg[syntax[2]]
+    
+    elif code in D:
+        var=syntax[2]
+        return op[code] + reg[syntax[1]] + binConvert(varDict[var])
+    
+    elif code in E:
+        label=syntax[1]
+
+        return op[code] + unusedBits(3) + binConvert(diclabel[label])
+    
+    elif code in F:
+        return op[code] + unusedBits(11)
+
+
+# ------------------Testing--------------------------------
+# s="mov R1 R2"   #write sytnax
+# ans="0101000000000000"          #write the expected bin conversion
+# syntaxx=s.split()
+# mem_location=None
+# bin=convertor(syntaxx, mem_location)
+# print(bin==ans)
+# # print(bin)
+# ------------------------------------------------------------
+
+
+
+def check_space(i,inlist,count):
+    c = 0
+    for j in i:
+        if(j==' '):
+            c+=1
+    if(len(i.split())-1==c):
+        return True
+    else:
+        print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
+        return False
+q = 0
+dicinst = {"add":['10000','A'],"sub":['10001','A'],"mov":['10010','B'],"mov":['10011','C'],"ld":['10100','D'],
+"st":['10101','D'],"mul":['10110','A'],"div":['10111','C'],"rs":['11000','B'],"ls":['11001','B'],"xor":['11010','A'],
+"or":['11011','A'],"and":['11100','A'],"not":['11101','C'],"cmp":['11110','C'],"jmp":['11111','E'],
+"jlt":['01100','E'],"jgt":['01101','E'],"je":['01111','E'],"hlt":['01010','F']}
+
+dicreg = {"R0" : "000",
+       "R1" : "001",
+        "R2": "010",
+        "R3": "011",
+        "R4": "100",
+        "R5": "101",
+        "R6": "110",
+        "FLAGS": "111",}
+# diclabel = {'label1':3}
+
+# inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+# instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+# varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+# diclabel= {18: 'add'}
+
+
+
+#input_file = open("1112.txt","r")
+input_file=stdin
+#print(input_file)
+a = input_file.read().split("\n")
+inslist = {}
+for i in range(1,len(a)+1):
+    if a[i-1] == '' or '\t' in a[i-1] :
+        pass
+    else:
+        inslist[i] = a[i-1]
+purified = []
+for line in inslist.values():
+    if line.split()[0] == "var":
+        pass
+    else:
+        purified.append(line)
+instDict = {}
+for i in range(1,len(purified)+1):
+    instDict[i]= purified[i-1]
+x = len(instDict)
+varDict = {}
+f = list(inslist.values())
+
+varCheck = True
+varhelp = 0
+for i in range(1,len(f)+1):
+    if f[i-1].split()[0] == 'var':
+        if(check_space(f[i-1],inslist,varhelp)):
+            if f[i-1].split()[0] == 'var' and len(f[i-1].split()) == 2:
+                varDict[i+x] = f[i-1].split()[1]
+            elif f[i-1].split()[0] == 'var' and len(f[i-1].split()) != 2:
+                print(f"Error at line {list(inslist.keys())[i-1]}: Invalid variable")
+                varCheck = False
+                break
+            else:
+                print(f"Error at line {list(inslist.keys())[i-1]}: Invalid variable")
+                varCheck = False
+                break
+        else:
+            varCheck = False
+            break
+    else:
+        pass
+    varhelp+=1
+diclabel = {}
+iterator = 0
+for i in inslist.values():
+    if ":" in i and (i[0] !=":" or i[-1] != ":"):
+        diclabel[list(inslist.keys())[iterator]] = i[0:i.index(":")]
+    iterator+=1
+varDicta = {value:key for key, value in varDict.items()}
+diclabela = {value:key for key, value in diclabel.items()}
+
+final=[]
+
+# print(inslist.keys())
+# count = len(varDict.values())
 def checklen(cmd,type,inslist,q,s,count):
     if(type=='A'):
         if(len(cmd)!=4):
@@ -170,22 +340,22 @@ def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
 def checking_typeF(cmd,dicinst,dicreg,diclabel,q,s,count):
     return True
 
-def check_space(i,inlist,count):
-    c = 0
-    for j in i:
-        if(j==' '):
-            c+=1
-    if(len(i.split())-1==c):
-        return True
-    else:
-        print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
-        return False
+# def check_space(i,inlist,count):
+#     c = 0
+#     for j in i:
+#         if(j==' '):
+#             c+=1
+#     if(len(i.split())-1==c):
+#         return True
+#     else:
+#         print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
+#         return False
 
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
     l = list(inslist.values())
     if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1):
-        if(check_space(s,inslist,count)):
+        # if(check_space(s,inslist,count)):
             if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
                 if(q==1):
                     print(s)
@@ -236,9 +406,9 @@ def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
                         return result
                 else:
                     return False
-        else:
-            # print(f"Error At line {inslist[s]} : Invalid spaces in Instruction")
-            return False
+        # else:
+        #     # print(f"Error At line {inslist[s]} : Invalid spaces in Instruction")
+        #     return False
     else:
         print("Error At End: No hlt statement at end or hlt statement in between the code")
         return False
@@ -246,10 +416,12 @@ def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
 
 def checking_label(s,diclabel,inslist,q,count):
     idx = s.index(':')
-    x = idx+2
     y = idx-1
-    if(idx==0 or idx==len(s)-1 or s[x]==' ' or s[y]==' '):
+    if(idx==0 or idx==len(s)-1 or s[y]==' '):
         print(f"Error At line {list(inslist.keys())[count]} : Invalid label syntax")
+        return False
+    elif(s[:idx] in dicinst.keys()):
+        print(f"Error at line {list(inslist.keys())[count]} : label name cannot be a Keyword")
         return False
     else:
         q=1
@@ -258,33 +430,32 @@ def checking_label(s,diclabel,inslist,q,count):
         k = checking(o,dicinst,dicreg,varDict,diclabel,inslist,q,s,count)
         return k
 
-
-q = 0
-dicinst = {"add":['10000','A'],"sub":['10001','A'],"mov":['10010','B'],"mov":['10011','C'],"ld":['10100','D'],
-"st":['10101','D'],"mul":['10110','A'],"div":['10111','C'],"rs":['11000','B'],"ls":['11001','B'],"xor":['11010','A'],
-"or":['11011','A'],"and":['11100','A'],"not":['11101','C'],"cmp":['11110','C'],"jmp":['11111','E'],
-"jlt":['01100','E'],"jgt":['01101','E'],"je":['01111','E'],"hlt":['01010','F']}
-
-dicreg = {'R0': "000",'R1':"001",'R2':"010","R3":"011","R4":"100","R5":"101","R6":"110","FLAGS":"111"}
-# diclabel = {'label1':3}
-
-# inslist = {'var X':1, 'var y':2, 'var Z':3, 'var u':4, 'add R1 R2 R3':5, 'add R1 R2 R3':6,'label1: add R1 R2 R3':7,'jlt label1': 8,'hlt':9,'ld R1 X':10,'hlt':11}
-# instDict = {'add R1 R2 R3': 1,'add R1 R2 R3':2,'label1: add R1 R2 R3':3,'jlt label1':4,'hlt':5,'ld R1 X':6,'hlt':7}
-# varDict = {'X': 6, 'y': 7, 'Z': 8, 'u': 9}
-inslist = {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R4', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
-instDict = {0: 'add R1 R2 R3', 1: 'add R1 R2 R4', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
-varDict = {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
-diclabel = {18: 'add'}
-
-count = len(varDict.values())-1
-for i in instDict.values():
-    count+=1
-    if(':' in i):
-        if(check_space(i,inslist,count)):
-            if(checking_label(i,diclabel,inslist,q,count)==False):
+count = len(varDict.keys())
+if(varCheck):
+    for i in instDict.values():
+        if(':' in i):
+            # if(check_space(i,inslist,count)):
+                if(checking_label(i,diclabel,inslist,q,count)==False):
+                    break
+                else:
+                    final.append(convertor(i.split()[1:], varDicta, diclabela))
+        else:
+            cmd = i.split()
+            if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
                 break
-    else:
-        cmd = i.split()
-        if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
-            break
+            
+            else:
+                
+                final.append(convertor(i.split(), varDicta, diclabela))
+        count+=1
+# print(final)
 
+#with open("hehe.txt", 'w') as g:
+ #   for i in range(len(final)):
+  #      if(i == len(final)-1):
+   #         s=final[i]
+    #    else:
+     #       s=final[i]+'\n'
+      #  g.write(s)
+for i in final:
+    print(i)
