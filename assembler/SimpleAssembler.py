@@ -73,6 +73,16 @@ def convertor(syntax, varDict, diclabel):
         return op[code] + unusedBits(11)
 
 
+# ------------------Testing--------------------------------
+# s="mov R1 R2"   #write sytnax
+# ans="0101000000000000"          #write the expected bin conversion
+# syntaxx=s.split()
+# mem_location=None
+# bin=convertor(syntaxx, mem_location)
+# print(bin==ans)
+# # print(bin)
+# ------------------------------------------------------------
+
 
 
 def check_space(i,inlist,count):
@@ -99,6 +109,12 @@ dicreg = {"R0" : "000",
         "R5": "101",
         "R6": "110",
         "FLAGS": "111",}
+# diclabel = {'label1':3}
+
+# inslist= {0: 'var X', 1: 'var y', 2: 'var Z', 4: 'var u', 6: 'add R1 R2 R3', 7: 'add R1 R2 R3', 9: 'add R1 R2 R3', 13: 'mov R1 $9', 18: 'add: add R3 R3 R4', 20: 'hlt'}
+# instDict={0: 'add R1 R2 R3', 1: 'add R1 R2 R3', 2: 'add R1 R2 R3', 3: 'mov R1 $9', 4: 'add: add R3 R3 R4', 5: 'hlt'}
+# varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+# diclabel= {18: 'add'}
 
 #############################      FILE INPUT    ###########################
 
@@ -397,6 +413,17 @@ def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
 def checking_typeF(cmd,dicinst,dicreg,diclabel,q,s,count):
     return True
 
+# def check_space(i,inlist,count):
+#     c = 0
+#     for j in i:
+#         if(j==' '):
+#             c+=1
+#     if(len(i.split())-1==c):
+#         return True
+#     else:
+#         print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
+#         return False
+
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
     l = list(inslist.values())
@@ -494,6 +521,14 @@ if(varCheck):
                 
                 final.append(convertor(i.split(), varDicta, diclabela))
         count+=1
+# print(final)
 
+#with open("hehe.txt", 'w') as g:
+ #   for i in range(len(final)):
+  #      if(i == len(final)-1):
+   #         s=final[i]
+    #    else:
+     #       s=final[i]+'\n'
+      #  g.write(s)
 for i in final:
     print(i)
