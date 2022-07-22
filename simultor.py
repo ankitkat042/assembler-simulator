@@ -67,7 +67,7 @@ def typeC(cmd):
         printing(PC,dicreg)
 
     elif(cmd[:5]=="10111"):
-        dicreg["000"] = dicreg[cmd[10:13]]//dicreg[cmd[13:]]
+        dicreg["000"] = dicreg[cmd[10:13]]//dicreg[cmd[13:]] #------check division format----------
         dicreg["001"] = dicreg[cmd[10:13]] % dicreg[cmd[13:]]
         printing(PC,dicreg)
 
@@ -76,13 +76,37 @@ def typeC(cmd):
         printing(PC,dicreg)
 
     elif(cmd[:5]=="11110"):
-        pass #----------------------Flag setting remaining-------------------
+        if(int(cmd[13:])<int(cmd[10:13])):
+            flg["L"] = 1 #----------------------Flag setting remaining-------------------
 
-def typeD(cmd,PC,dicreg):
-    pass
+        elif(int(cmd[13:])>int(cmd[10:13])):
+            flg["G"] = 1
+
+        elif(int(cmd[13:])==int(cmd[10:13])):
+            flg["E"] = 1
+
+
+def typeD(cmd,PC,dicreg,vardict):
+    if(cmd[:5]=="10100"):
+        dicreg[cmd[5:8]] = vardict[int(cmd[8:])]
+        printing(PC,dicreg)
+    elif(cmd[:5]=="10101"):
+        vardict[int(cmd[8:])] = dicreg[cmd[5:8]]
+        printing(PC,dicreg)
 
 def typeE(cmd,PC,dicreg):
-    pass
+    if(cmd[:5]=="11111"): #jmp
+        PC = int(cmd[8:])
+    
+    elif(cmd[:5]=="01100"): #jlt
+        PC = int(cmd[8:])
+    
+    elif(cmd[:5]=="01101"): #jgt
+        PC = int(cmd[8:])
+
+    elif(cmd[:5]=="01111"): #je
+        PC = int(cmd[8:])
+
 
 
 PC = 0
@@ -104,6 +128,10 @@ B=["10010","11001"]
 C=["10011","10111","11101","11110"]
 D=["10100","10101"]
 E=["11111","01100","01101","01111"]
+
+varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
+
+flg = {"V":0, "L":0, "G":0, "E":0}
 
 
 
