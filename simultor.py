@@ -1,4 +1,5 @@
 import sys
+from matplotlib import pyplot as plt
 def bin8Convert (n):
     return '{0:08b}'.format(n)
 
@@ -206,7 +207,10 @@ def typeE(cmd,PC,dicreg):
 
 
 PC = 0
+cycle = 0
 dic = {}
+x = []
+y = []
 #inut = sys.stdin
 inut = open("input.txt", "r")
 data = inut.read().split("\n")
@@ -235,6 +239,8 @@ for lines in data:
     count +=1
 
 while(dic[PC][:5]!="01010"):
+    x.append(cycle)
+    y.append(PC)
     if(dic[PC][:5] in A):
         PC = typeA(dic[PC],PC,dicreg)
     
@@ -245,7 +251,18 @@ while(dic[PC][:5]!="01010"):
         PC = typeC(dic[PC],PC,dicreg)
 
     elif(dic[PC][:5] in D):
+        x.append(cycle)
+        y.append(int(dic[PC][8:]),2)
         PC = typeD(dic[PC],PC,dicreg,dic)
     
     elif(dic[PC][:5] in E):
         PC = typeE(dic[PC],PC,dicreg)
+    cycle+=1
+
+x.append(cycle)
+y.append(PC)
+
+plt.scatter(x,y)
+plt.xlabel("Cycle")
+plt.ylabel("Memory")
+plt.show()
