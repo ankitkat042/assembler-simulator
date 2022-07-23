@@ -8,105 +8,197 @@ def bin16Convert(n):
 def printing(PC,dicreg):
     print(bin8Convert(PC),end=' ')
     for i in dicreg.values():
-        print(bin16Convert(i),end=' ')
+        print(bin16Convert(bin_dec(i)),end=' ')
 
+def flag_reset(dicreg):
+    dicreg["111"] = "0000000000000000"
 
+def bin_dec(s):
+    return int(s,2)
 
 def typeA(cmd,PC,dicreg):
-    if(cmd[:5]=="10000"):
-        if(dicreg[cmd[7:10]] + dicreg[cmd[10:13]]<65536): #-------------- checking condition for overflow 
-            dicreg[cmd[13:]] = dicreg[cmd[7:10]] + dicreg[cmd[10:13]]
+    if(cmd[:5]=="10000"): #------------------Addition----------------
+        if(bin_dec(dicreg[cmd[7:10]]) + bin_dec(dicreg[cmd[10:13]])<65536): #-------------- checking condition for overflow------------ 
+            dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]]) + bin_dec(dicreg[cmd[10:13]]))
             printing(PC,dicreg)
+            flag_reset(dicreg)
+            PC+=1
+            return PC
         else:       # what to do when overflow occur
-            pass
-
-    elif(cmd[:5]=="10001"):
-        if(dicreg[cmd[7:10]]<dicreg[cmd[10:13]]):
-            dicreg[cmd[13:]] = 0
-        elif(dicreg[cmd[7:10]]-dicreg[cmd[10:13]]<0):
-            dicreg[cmd[13:]] = dicreg[cmd[7:10]] - dicreg[cmd[10:13]]
+            dicreg[cmd[13:]] = bin16Convert(65535)
+            dicreg["111"] = "0000000000001000"
             printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
+
+    elif(cmd[:5]=="10001"): #-----------------subtraction-----------------------------
+        if(bin_dec(dicreg[cmd[7:10]])<bin_dec(dicreg[cmd[10:13]])):
+            dicreg[cmd[13:]] = "0000000000000000"
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
+
+        elif(bin_dec(dicreg[cmd[7:10]])-bin_dec(dicreg[cmd[10:13]])<0):
+            dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]])-bin_dec(dicreg[cmd[10:13]]))
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
+
         else:
-                #------------ what to do when underflow occur
-            pass
+            dicreg[cmd[13:]] = "0000000000000000"
+            dicreg["111"] = "0000000000001000"
+            printing(PC,dicreg) #-------------when underflow occur
+            PC+=1
+            flag_reset(dicreg)
+            return PC
     
-    elif(cmd[:5]=="10110"):
-        if(dicreg[cmd[7:10]] * dicreg[cmd[10:13]]<65536):
-            dicreg[cmd[13:]] = dicreg[cmd[7:10]] * dicreg[cmd[10:13]]
+    elif(cmd[:5]=="10110"): #-----------------Multiply------------
+        if(bin_dec(dicreg[cmd[7:10]]) * bin_dec(dicreg[cmd[10:13]])<65536):
+            dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]]) * bin_dec(dicreg[cmd[10:13]]))
             printing(PC,dicreg)
-        else:   #------------what to do when overflow occur
-            pass 
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
-    elif(cmd[:5]=="11010"):
-        dicreg[cmd[13:]] = dicreg[cmd[7:10]] ^ dicreg[cmd[10:13]]
-        printing(PC,dicreg)
+        else:
+            dicreg[cmd[13:]] = "1111111111111111"
+            dicreg["111"] = "0000000000001000"   #------------what to do when overflow occur
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
-    elif(cmd[:5]=="11011"):
-        dicreg[cmd[13:]] = dicreg[cmd[7:10]] | dicreg[cmd[10:13]]
+    elif(cmd[:5]=="11010"): #-----------Exclusive XOR----------------I think mistake in calculation--
+        dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]]) ^ bin_dec(dicreg[cmd[10:13]]))
         printing(PC,dicreg)
-    
-    elif(cmd[:5]=="11100"):
-        dicreg[cmd[13:]] = dicreg[cmd[7:10]] & dicreg[cmd[10:13]]
+        PC+=1
+        flag_reset(dicreg)
+        return PC
+
+    elif(cmd[:5]=="11011"): #---------------OR#--------------------------
+        dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]]) | bin_dec(dicreg[cmd[10:13]]))
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
+
+    elif(cmd[:5]=="11100"):#--------------------------AND#--------------------------
+        dicreg[cmd[13:]] = bin16Convert(bin_dec(dicreg[cmd[7:10]]) & bin_dec(dicreg[cmd[10:13]]))
+        printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
 
 
 def typeB(cmd,PC,dicreg):
-    if(cmd[:5]=="10010"):
-        dicreg[cmd[5:8]] = int(cmd[8:])
+    if(cmd[:5]=="10010"):#--------------------------Move immediate#--------------------------
+        dicreg[cmd[5:8]] = bin16Convert(bin_dec(cmd[8:]))
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
     
-    elif(cmd[:5]=="11001"):
-        if(int(dicreg[cmd[5:8]] << int(dicreg[cmd[8:]]))<65536):
-            dicreg[cmd[5:8]] = dicreg[cmd[5:8]] << int(dicreg[cmd[8:]])
+    elif(cmd[:5]=="11001"):#--------------------------left shift#--------------------------
+        if(bin_dec((dicreg[cmd[5:8]])) << bin_dec((dicreg[cmd[8:]]))<65536):
+            dicreg[cmd[5:8]] = bin16Convert(bin_dec(dicreg[cmd[5:8]]) << bin_dec(dicreg[cmd[8:]]))
             printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
 
-def typeC(cmd):
-    if(cmd[:5]=="10011"):
+def typeC(cmd,PC,dicreg):
+    if(cmd[:5]=="10011"):#--------------------------Move register#--------------------------
         dicreg[cmd[13:]] = dicreg[cmd[10:13]]
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
 
-    elif(cmd[:5]=="10111"):
-        dicreg["000"] = dicreg[cmd[10:13]]//dicreg[cmd[13:]] #------check division format----------
-        dicreg["001"] = dicreg[cmd[10:13]] % dicreg[cmd[13:]]
+    elif(cmd[:5]=="10111"):#--------------------------Divide#--------------------------
+        dicreg["000"] = bin16Convert(bin_dec(dicreg[cmd[10:13]])//bin_dec(dicreg[cmd[13:]])) #------check division format----------
+        dicreg["001"] = bin16Convert(bin_dec(dicreg[cmd[10:13]]) % bin_dec(dicreg[cmd[13:]]))
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
 
-    elif(cmd[:5]=="11101"):
-        dicreg[cmd[13:]] = ~(dicreg[cmd[10:13]])
+    elif(cmd[:5]=="11101"):#--------------------------NOT#--------------------------
+        dicreg[cmd[13:]] = bin16Convert(~(bin_dec(dicreg[cmd[10:13]])))
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
 
-    elif(cmd[:5]=="11110"):
-        if(int(cmd[13:])<int(cmd[10:13])):
-            flg["L"] = 1 #----------------------Flag setting remaining-------------------
+    elif(cmd[:5]=="11110"):#--------------------------CMP#--------------------------
+        if(bin_dec(cmd[13:])<bin_dec(cmd[10:13])):
+            dicreg["111"] = "0000000000000100" #----------------------Flag setting remaining-------------------
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
-        elif(int(cmd[13:])>int(cmd[10:13])):
-            flg["G"] = 1
+        elif(bin_dec(cmd[13:])>bin_dec(cmd[10:13])):
+            dicreg["111"] = "0000000000000010"
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
-        elif(int(cmd[13:])==int(cmd[10:13])):
-            flg["E"] = 1
+        elif(bin_dec(cmd[13:])==bin_dec(cmd[10:13])):
+            dicreg["111"] = "0000000000000001"
+            printing(PC,dicreg)
+            PC+=1
+            flag_reset(dicreg)
+            return PC
 
 
-def typeD(cmd,PC,dicreg,vardict):
-    if(cmd[:5]=="10100"):
-        dicreg[cmd[5:8]] = vardict[int(cmd[8:])]
+def typeD(cmd,PC,dicreg,dic):
+    if(cmd[:5]=="10100"):#--------------------------LOAD#--------------------------
+        dicreg[cmd[5:8]] = bin16Convert(bin_dec(dic[bin_dec(cmd[8:])]))
         printing(PC,dicreg)
-    elif(cmd[:5]=="10101"):
-        vardict[int(cmd[8:])] = dicreg[cmd[5:8]]
+        PC+=1
+        flag_reset(dicreg)
+        return PC
+
+    elif(cmd[:5]=="10101"):#--------------------------Store#--------------------------
+        dic[bin_dec(cmd[8:])] = bin16Convert(bin_dec(dicreg[cmd[5:8]]))
         printing(PC,dicreg)
+        PC+=1
+        flag_reset(dicreg)
+        return PC
 
 def typeE(cmd,PC,dicreg):
     if(cmd[:5]=="11111"): #jmp
         PC = int(cmd[8:])
+        return PC
     
     elif(cmd[:5]=="01100"): #jlt
-        PC = int(cmd[8:])
+        if(dicreg["111"]=="0000000000000100"):
+            PC = int(cmd[8:])
+            return PC
+        else:
+            PC+=1
+            return PC
     
     elif(cmd[:5]=="01101"): #jgt
-        PC = int(cmd[8:])
+        if(dicreg["111"]=="0000000000000010"):
+            PC = int(cmd[8:])
+            return PC
+        else:
+            PC+=1
+            return PC
 
     elif(cmd[:5]=="01111"): #je
-        PC = int(cmd[8:])
-
+        if(dicreg["111"]=="0000000000000001"):
+            PC = int(cmd[8:])
+            return PC
+        else:
+            PC+=1
+            return PC
 
 
 PC = 0
@@ -114,14 +206,14 @@ dic = {}
 f = open("input.txt","r")
 data = f.readlines()
 count = 0
-dicreg = {"000" : 0,
-       "001" : 0,
-        "010": 0,
-        "011": 0,
-        "100": 0,
-        "101": 0,
-        "110": 0,
-        "111": 0,}
+dicreg = {"000" : "0000000000000000",
+       "001" : "0000000000000000",
+        "010": "0000000000000000",
+        "011": "0000000000000000",
+        "100": "0000000000000000",
+        "101": "0000000000000000",
+        "110": "0000000000000000",
+        "111": "0000000000000000"}
 
 A=["10000","10001","10110","11010","11011","11100"]
 B=["10010","11001"]
@@ -129,12 +221,8 @@ C=["10011","10111","11101","11110"]
 D=["10100","10101"]
 E=["11111","01100","01101","01111"]
 
-varDict= {6: 'X', 7: 'y', 8: 'Z', 9: 'u'}
-
-flg = {"V":0, "L":0, "G":0, "E":0}
-
-
-
+for i in range(0,256):
+    dic[i] = "0000000000000000"
 
 for lines in data:
     dic[count] = lines
@@ -142,18 +230,17 @@ for lines in data:
 
 while(dic[PC][:5]!="01010"):
     if(dic[PC][:5] in A):
-        typeA(dic[PC],PC,dicreg)
+        PC = typeA(dic[PC],PC,dicreg)
     
     elif(dic[PC][:5] in B):
-        typeB(dic[PC],PC,dicreg)
+        PC = typeB(dic[PC],PC,dicreg)
     
     elif(dic[PC][:5] in C):
-        typeC(dic[PC],PC,dicreg)
+        PC = typeC(dic[PC],PC,dicreg)
 
     elif(dic[PC][:5] in D):
-        typeD(dic[PC],PC,dicreg)
+        PC = typeD(dic[PC],PC,dicreg,dic)
     
     elif(dic[PC][:5] in E):
-        typeE(dic[PC],PC,dicreg)
+        PC = typeE(dic[PC],PC,dicreg)
     print("\n")
-    PC+=1
