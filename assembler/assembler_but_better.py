@@ -120,9 +120,9 @@ dicreg = {"R0" : "000",
 
 #input_file = open("1112.txt","r")
 input_file=stdin
-#print(input_file)
-# a = input_file.read().split("\n")
-a = ['var X', 'mov R1 $10', 'label1: hlt ','mov R2 $100', 'label2: hlt','mul R3 R1 R2','jmp label1','cmp R1 R2', 'jgt label2','st R3 X', 'hlt', '']
+# print(input_file)
+a = input_file.read().split("\n")
+# a = ['var X', 'mov R1 $10', 'label1: hlt ','mov R2 $100', 'label2: hlt','mul R3 R1 R2','jmp label1','cmp R1 R2', 'jgt label2','st R3 X', 'hlt', '']
 
 ############################################################################
 
@@ -540,5 +540,6 @@ if(varCheck):
                 count+=1
 
 
-for i in final:
-    print(i)
+for i in range(len(final)):
+    if i<=256:
+        print(final[i])
