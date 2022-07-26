@@ -541,5 +541,5 @@ if(varCheck):
 
 
 for i in range(len(final)):
-    if i<=256:
+    if i<256:
         print(final[i])
