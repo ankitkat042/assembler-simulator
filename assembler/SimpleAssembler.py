@@ -120,13 +120,32 @@ dicreg = {"R0" : "000",
 
 #input_file = open("1112.txt","r")
 input_file=stdin
-#print(input_file)
+# print(input_file)
 a = input_file.read().split("\n")
+# a = ['var X', 'mov R1 $10', 'label1: hlt ','mov R2 $100', 'label2: hlt','mul R3 R1 R2','jmp label1','cmp R1 R2', 'jgt label2','st R3 X', 'hlt', '']
 
 ############################################################################
 
+
+
+# --------------------------------------------------------------------------
+
+def printf():
+    print(inslist)
+    print(f)
+    print(instDict)
+    print(varDict)
+    print(diclabel)
+    print(labeldic)
+    print(hltinlabel)
+
+# --------------------------------------------------------------------------
+
+
+
+
 inslist = {}
-for i in range(1,len(a)+1):
+for i in range(1,len(a)):
     if a[i-1] == '' or '\t' in a[i-1] :
         pass
     else:
@@ -139,30 +158,29 @@ for line in inslist.values():
         purified.append(line)
 instDict = {}
 for i in range(1,len(purified)+1):
-    instDict[i]= purified[i-1]
-x = len(instDict)
+    instDict[i-1]= purified[i-1]
+x = len(inslist)-1
 varDict = {}
 f = list(inslist.values())
 
 # -----------------------error type: varibale in between-----------------------
-inn=-1
-statevar=True
+def varinbetween():
+    inn=-1
+    statevar=True
+    for i in range(len(a)):
+        
+        if a[i][0:3]=="var":
+            inn=i
+        elif a[i]=='':
+            pass
+        elif statevar==True:
+            inx=i
+            statevar=False
 
-
-
-for i in range(len(a)):
-    
-    if a[i][0:3]=="var":
-        inn=i
-    elif a[i]=='':
-        pass
-    elif statevar==True:
-        inx=i
-        statevar=False
-
-if inn>inx:
-    print(f"Error in std-input at line {inn+1}: Varible declared after instruction")
-    exit()
+    if inn>inx:
+        print(f"Error in std-input at line {inn+1}: Varible declared after instruction")
+        return False
+    return True
 # ----------------------------------------------------------------------------
 varCheck = True
 varhelp = 0
@@ -170,7 +188,7 @@ for i in range(1,len(f)+1):
     if f[i-1].split()[0] == 'var':
         if(check_space(f[i-1],inslist,varhelp)):
             if f[i-1].split()[0] == 'var' and len(f[i-1].split()) == 2:
-                varDict[i+x] = f[i-1].split()[1]
+                varDict[i+x-1] = f[i-1].split()[1]                          # change 1.0 : [i+x]->[i+x-1] to correct the variable numbers
             elif f[i-1].split()[0] == 'var' and len(f[i-1].split()) != 2:
                 print(f"Error at line {list(inslist.keys())[i-1]}: Invalid variable")
                 varCheck = False
@@ -186,22 +204,28 @@ for i in range(1,len(f)+1):
         pass
     varhelp+=1
 diclabel = {}
+labeldic={} # change 1.1
 iterator = 0
-for i in inslist.values():
+for i in instDict.values():
     if ":" in i and (i[0] !=":" or i[-1] != ":"):
-        diclabel[list(inslist.keys())[iterator]] = i[0:i.index(":")]
+        diclabel[list(instDict.keys())[iterator]] = i[0:i.index(":")]
+        labeldic[i[0:i.index(":")]]=i[i.index(":")+1:].strip()  #change 1.1.a             
     iterator+=1
 varDicta = {value:key for key, value in varDict.items()}
 diclabela = {value:key for key, value in diclabel.items()}
-
+hltinlabel=0
+if 'hlt' in labeldic.values():
+    hltinlabel=1
 # ----------------------------------error type: var name == label name   ----------------------------------
-varkeys=list(varDicta.keys())
-labelkeys=list(diclabela.keys())
-for i in range(len(varkeys)):
-    for j in range(len(labelkeys)):
-        if varkeys[i]==labelkeys[j]:
-            print(f"Error at line {diclabela[labelkeys[j]]}: label name cannot be same as variable name")
-            exit()
+def checklabelinvar():
+    varkeys=list(varDicta.keys())
+    labelkeys=list(diclabela.keys())
+    for i in range(len(varkeys)):
+        for j in range(len(labelkeys)):
+            if varkeys[i]==labelkeys[j]:
+                print(f"Error at line {diclabela[labelkeys[j]]}: label name cannot be same as variable name")
+                return False
+    return True
 # ------------------------------------------------------------------------------------------------------------
 
 
@@ -210,34 +234,37 @@ for i in range(len(varkeys)):
 # -----------------------error type: same name variable-----------------------
 cn = Counter(varDict.values())
 cna=sorted(k for k,v in varDict.items() if cn[v] == 1)
+def checkvar():
+    if len(cna)!=len(varDict):
+        z=-1
+        cul=sorted(k for k,v in varDict.items() if cn[v] != 1)
+        keyy=varDict[cul[-1]]
+    
+        culpritvar=f"var {keyy}"
 
-if len(cna)!=len(varDict):
-    z=-1
-    cul=sorted(k for k,v in varDict.items() if cn[v] != 1)
-    keyy=varDict[cul[-1]]
- 
-    culpritvar=f"var {keyy}"
-
-    for i in range(len(a)):
-        if a[i]==culpritvar:
-            z=i+1
-    print(f"General Syntax Error at line {z} : Two or more different variables have same names ")
-    exit()
+        for i in range(len(a)):
+            if a[i]==culpritvar:
+                z=i+1
+        print(f"General Syntax Error at line {z} : Two or more different variables have same names ")
+        return False
+    return True
 # -----------------------------------error type: same name label----------------------
 
 
 cnlabel = Counter(diclabel.values())
 cnalabel=sorted(k for k,v in diclabel.items() if cnlabel[v] == 1)
-if len(cnalabel)!=len(diclabel):
-    z=-1
-    cul=sorted(k for k,v in diclabel.items() if cnlabel[v] != 1)
-    
-    keyy=diclabel[cul[-1]]
-    
-    z=diclabela[keyy]
-    
-    print(f"General Syntax Error {z}: Two or more different labels have same names ")
-    exit()
+def checklabel():
+    if len(cnalabel)!=len(diclabel):
+        z=-1
+        cul=sorted(k for k,v in diclabel.items() if cnlabel[v] != 1)
+        
+        keyy=diclabel[cul[-1]]
+        
+        z=diclabela[keyy]
+        
+        print(f"General Syntax Error {z}: Two or more different labels have same names ")
+        return False
+    return True
 
 # print(inslist.keys())
 
@@ -355,7 +382,7 @@ def checking_typeC(cmd,dicinst,dicreg,inslist,q,s,count):
         else:
             print(f"Error at line {list(inslist.keys())[count]} : Register cannot be a Keyword")
             return False
-    elif((cmd[1] not in dicreg.keys() or cmd[1]=="FLAGS") or cmd[2] not in dicreg.keys()):
+    elif((cmd[1] not in dicreg.keys()) or cmd[2] not in dicreg.keys()):
         if(q==1):
             print(f"Error At line {list(inslist.keys())[count]} : Invalid Register in Label")
             q=0
@@ -413,21 +440,10 @@ def checking_typeE(cmd,dicinst,dicreg,diclabel,inslist,q,s,count):
 def checking_typeF(cmd,dicinst,dicreg,diclabel,q,s,count):
     return True
 
-# def check_space(i,inlist,count):
-#     c = 0
-#     for j in i:
-#         if(j==' '):
-#             c+=1
-#     if(len(i.split())-1==c):
-#         return True
-#     else:
-#         print(f"Error At line {list(inslist.keys())[count]} : Invalid spaces in instruction")
-#         return False
-
 
 def checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,s,count):
     l = list(inslist.values())
-    if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1):
+    if(list(inslist.values())[-1]=='hlt' and l.count('hlt')==1 or hltinlabel):
         # if(check_space(s,inslist,count)):
             if(cmd[0] not in dicinst.keys() or cmd[0]=='var'):
                 if(q==1):
@@ -505,30 +521,28 @@ def checking_label(s,diclabel,inslist,q,count):
 
 count = len(varDict.keys())
 if(varCheck):
-    for i in instDict.values():
-        if(':' in i):
-            # if(check_space(i,inslist,count)):
-                if(checking_label(i,diclabel,inslist,q,count)==False):
-                    break
-                else:
-                    final.append(convertor(i.split()[1:], varDicta, diclabela))
-        else:
-            cmd = i.split()
-            if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
-                break
-            
-            else:
+    if varinbetween() and checklabelinvar() and checkvar() and checklabel():
+        for i in instDict.values():
                 
-                final.append(convertor(i.split(), varDicta, diclabela))
-        count+=1
-# print(final)
+                if(':' in i):
+                    # if(check_space(i,inslist,count)):
+                        if(checking_label(i,diclabel,inslist,q,count)==False):
+                            break
+                        else:
+                            
+                            final.append(convertor(i.split()[1:], varDicta, diclabela))
+                            
+                else:
+                    cmd = i.split()
+                    if(checking(cmd,dicinst,dicreg,varDict,diclabel,inslist,q,i,count)==False):
+                        break
+                    
+                    else:
+                        
+                        final.append(convertor(i.split(), varDicta, diclabela))
+                count+=1
 
-#with open("hehe.txt", 'w') as g:
- #   for i in range(len(final)):
-  #      if(i == len(final)-1):
-   #         s=final[i]
-    #    else:
-     #       s=final[i]+'\n'
-      #  g.write(s)
-for i in final:
-    print(i)
+
+for i in range(len(final)):
+    if i<256:
+        print(final[i])
