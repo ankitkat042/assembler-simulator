@@ -546,3 +546,6 @@ if(varCheck):
 for i in range(len(final)):
     if i<256:
         print(final[i])
+    else:
+        print("lines exceeded 256")
+        break
