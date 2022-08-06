@@ -159,7 +159,7 @@ for line in inslist.values():
 instDict = {}
 for i in range(1,len(purified)+1):
     instDict[i-1]= purified[i-1]
-x = len(inslist)-1
+x = len(instDict)
 varDict = {}
 f = list(inslist.values())
 
