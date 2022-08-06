@@ -11,7 +11,7 @@ def printing(PC,dicreg):
     print(bin8Convert(PC),end=' ')
     for i in dicreg.values():
         print(bin16Convert(bin_dec(i)),end=' ')
-    print("\n")
+    print()
 
 def flag_reset(dicreg):
     dicreg["111"] = "0000000000000000"
@@ -38,7 +38,7 @@ def typeA(cmd,PC,dicreg):
             return PC
 
     elif(cmd[:5]=="10001"): #-----------------subtraction-----------------------------
-        if(bin_dec(dicreg[cmd[7:10]])<bin_dec(dicreg[cmd[10:13]])):
+        if(bin_dec(dicreg[cmd[7:10]])<=bin_dec(dicreg[cmd[10:13]])):
             dicreg[cmd[13:]] = "0000000000000000"
             printing(PC,dicreg)
             flag_reset(dicreg)
@@ -211,8 +211,8 @@ cycle = 0
 dic = {}
 x = []
 y = []
-#inut = sys.stdin
-inut = open("input.txt", "r")
+inut = sys.stdin
+# inut = open("input.txt", "r")
 data = inut.read().split("\n")
 
 count = 0
@@ -235,8 +235,13 @@ for i in range(0,256):
     dic[i] = "0000000000000000"
 
 for lines in data:
-    dic[count] = lines
-    count +=1
+    if(lines!=''):
+        dic[count] = lines
+        # print(lines)
+        count +=1
+# print(dic)
+# for i in dic.keys():
+#     print(dic[i])
 
 while(dic[PC][:5]!="01010"):
     x.append(cycle)
@@ -252,13 +257,13 @@ while(dic[PC][:5]!="01010"):
 
     elif(dic[PC][:5] in D):
         x.append(cycle)
-        y.append(int(dic[PC][8:]),2)
+        y.append(int(dic[PC][8:],2))
         PC = typeD(dic[PC],PC,dicreg,dic)
     
     elif(dic[PC][:5] in E):
         PC = typeE(dic[PC],PC,dicreg)
     cycle+=1
-
+printing(PC,dicreg)
 for i in dic.keys():
     print(dic[i])
 x.append(cycle)
